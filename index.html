@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joe's Hotdog Stand</title>
+</head>
+
+<body>
+    <h1>Joe's Hotdog Stand</h1>
+
+    <div class="form-container">
+        <form class="form" action="" style="border: 2px solid black; text-align: center;">
+            <!-- this div contains the hotdog input, as well as the hotdog name and price -->
+            <div class="hotdog-input"
+                style="display: flex; flex-direction: row; justify-content: center; align-items: center">
+                <b style="padding:10px">Enter Hotdog Quantity</b>
+                <p style="padding:10px">Price: 4.25</p>
+                <select style="padding:10px" id="hotdogQTY" name="hotdogQTY">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+            <hr>
+
+            <!-- this div contains the fries input, as well as the fries name and price -->
+            <div class="fries-input"
+                style="display: flex; flex-direction: row; justify-content: center; align-items: center">
+                <b style="padding:10px">Enter Fries Quantity</b>
+                <p style="padding:10px">Price: 2.6</p>
+                <select style="padding:10px" id="friesQTY" name="friesQTY">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+            <hr>
+
+            <!-- this div contains the soda input, as well as the soda name and price -->
+            <div class="soda-input"
+                style="display: flex; flex-direction: row; justify-content: center; align-items: center">
+                <b style="padding:10px">Enter Soda Quantity</b>
+                <p style="padding:10px">Price: 1.5</p>
+                <select style="padding:10px" id="sodaQTY" name="sodaQTY">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+            <button type="submit" id="btn"
+                style="padding: 10px; border-radius:10px; background-color: aquamarine;margin: 10px;">Place
+                Order</button>
+        </form>
+    </div>
+
+    <div id="bill" style="display: none">
+
+    </div>
+    <!-- <img src="hotdog.jpeg" style="width: 200px"> -->
+    <script>
+
+
+        let items = {
+            hotdogs: { price: 4.25, qty: 0 },
+            fries: { price: 2.6, qty: 0 },
+            sodas: { price: 1.5, qty: 0 }
+        }
+
+        let subtotal, discounted, final, tax;
+        let discount = 0;
+        let checkoutBTN = document.getElementById("btn")
+        let showBill = document.getElementById("bill")
+        let hotdogInput = document.getElementById("hotdogQTY")
+        let friesInput = document.getElementById("friesQTY")
+        let sodaInput = document.getElementById("sodaQTY")
+
+        //event listener for the order button
+        checkoutBTN.addEventListener("click", calculate)
+
+        //this function checks if the values have not all been left empty
+        function validateValues() {
+            if (hotdogInput.value == 0 && friesInput.value == 0 && sodaInput.value == 0) {
+                alert("Don't Forget To Add Item Quantities!")
+                return false
+            }
+            else {
+                return true
+            }
+        }
+
+        //this method is triggered after the user presses the order button
+        function calculate(e) {
+
+            //prevent page reload
+            e.preventDefault()
+
+            //this function checks to see if the user has left all the items quantity
+            // as 0
+
+            let goAhead = validateValues()
+            if (goAhead) {
+
+                let hotdogs = parseFloat(items.hotdogs.price) * parseFloat(hotdogInput.value);
+                let fries = parseFloat(items.fries.price) * parseFloat(friesInput.value);
+                let sodas = parseFloat(items.sodas.price) * parseFloat(sodaInput.value);
+                subtotal = hotdogs + fries + sodas
+
+                if (subtotal >= 20) {
+                    discounted = subtotal - (subtotal * 0.10); // minus 10% of discount
+                    //console.log(discounted)
+                    final = discounted + (discounted * 0.0625); // and then add tax
+                    //console.log(final)
+                    tax = discounted * 0.0625;
+                    discount = 10;
+                }
+                else {
+                    discounted = subtotal;
+                    tax = subtotal * 0.0625;
+                    final = subtotal + (subtotal * 0.0625); // only add tax
+                }
+
+                showBill.style.display = "block"
+                //Now we are calling functions using $(function () {). This is a jQuery function call that I found on stackoverflow
+                document.getElementById("bill").innerHTML = `
+        <li><strong>Subtotal=</strong> $${convert(subtotal)}</li>
+        <li><strong>Discount=</strong> ${discount}%: $${convert(discounted)}</li>
+        <li><strong>Tax=</strong> 6.25%: $${convert(tax)}</li>
+        <li><strong>Final Total=</strong> $${convert(final)}</li>
+        `;
+            }
+
+        }
+
+        // convert to 2 decimal places
+        function convert(input) {
+            if (input.toString().length > 4) {
+                var converted = input.toString().match(/^-?\d+(?:\.\d{0,2})?/); //I found this Regex expression on stack overflow: https://stackoverflow.com/questions/40954015/shorten-function-in-javascript
+                return converted;
+            }
+            else {
+                return input;
+            }
+
+        }
+
+
+    </script>
+</body>
+
+</html>
